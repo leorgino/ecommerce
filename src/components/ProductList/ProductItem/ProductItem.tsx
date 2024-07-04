@@ -86,7 +86,7 @@ const ProductItem: React.FC<{product: Product}> = ({
         <CardFooter>
           <Buttons>
             <Link to={`/products/${product.id}`}>View</Link>
-            <button className="" onClick={() => addToCart(product)}>+ add</button>
+            <button className="" onClick={() => addToCart(product, 1)}>+ add</button>
           </Buttons>
         </CardFooter>
       </Card>

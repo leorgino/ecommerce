@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCart } from '../../contexts/CartContext';
 import CartAside from '../CartAside/CartAside';
+import { useAuth } from '../../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import CartImage from '../Images/cart.png'
@@ -41,8 +42,17 @@ const CartButton = styled.span`
 `
 
 const NavBar: React.FC<{}> = () => {
+  const { isAuthenticated } = useAuth();
   const { cart, cartTotal, toggleAsideCart } = useCart();
   const navigate = useNavigate();
+
+  const toggleCart = () => {
+    if (isAuthenticated) {
+      toggleAsideCart();
+    } else {
+      navigate('/login');
+    }
+  }
 
   return (
     <>
@@ -54,9 +64,11 @@ const NavBar: React.FC<{}> = () => {
           <Item>
             <Link to="/profile"><img src={ProfileIcon} alt='profile' /></Link>
           </Item>
-          <Item><img src={BoxImage} alt="purchases"/></Item>
-          <CartButton onClick={() => toggleAsideCart()}>
-            <img src={CartImage} alt="cart"/> ({cart.length}) - {cartTotal}€
+          <Item>
+            <Link to="/purchases"><img src={BoxImage} alt="purchases"/></Link>
+          </Item>
+          <CartButton onClick={() => toggleCart()}>
+            <img src={CartImage} alt="cart"/> $({cart.length}) - {cartTotal}
           </CartButton>
         </ItemsContent>
       </Nav>

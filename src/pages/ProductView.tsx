@@ -102,7 +102,7 @@ const ProductView: React.FC<{}> = () => {
           <CardFooter>
             <Buttons>
               <Link to='/'>Back</Link>
-              <button className="" onClick={() => addToCart(product)}>+ add</button>
+              <button className="" onClick={() => addToCart(product, 1)}>+ add</button>
             </Buttons>
           </CardFooter>
         </Card>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import Loading from '../components/Loading/LoadingComponent';
 import styled from 'styled-components';
 import ProfileAvatar from '../components/Images/profileAvatar.png'
 import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface User {
   id: number;
@@ -71,7 +72,7 @@ const Profile: React.FC = () => {
   }, [fetchUser, user]);
 
   if (!userData) {
-    return <div><center>Loading...</center></div>;
+    return <Loading />;
   }
 
   return (

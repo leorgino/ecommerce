@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import styled from 'styled-components';
+import LoadingSpinner from '../components/Loading/LoadingSpinner';
 
 interface RegisterFormData {
   firstName: string;
@@ -16,7 +17,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 60vh;
 `;
 
 const FormWrapper = styled.div`
@@ -40,18 +41,6 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
-const Button = styled.button`
-  padding: 10px;
-  background-color: lightblue;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
 const StyledLink = styled(Link)`
   display: block;
   margin-top: 10px;
@@ -62,9 +51,19 @@ const StyledLink = styled(Link)`
   }
 `;
 
+const LoginButton = styled.button`
+  background: lightblue;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+`;
+
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [isLoading, setIsloading] = useState<boolean>(false);
 
   if (isAuthenticated) {
     navigate('/');
@@ -89,10 +88,13 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      setIsloading(true);
       const response = await axios.post('https://e-commerce-api-v2.academlo.tech/api/v1/users', formData);
       console.log('Registro exitoso:', response.data);
     } catch (error) {
       console.error('Error en el registro:', error);
+    } finally {
+      setIsloading(false);
     }
   };
 
@@ -106,7 +108,9 @@ const Register: React.FC = () => {
           <Input type="email" name="email" placeholder="Email" onChange={handleChange} required />
           <Input type="password" name="password" placeholder="Password" onChange={handleChange} required />
           <Input type="text" name="phone" placeholder="Phone" onChange={handleChange} required />
-          <Button type="submit">Register</Button>
+          <LoginButton type="submit" disabled={isLoading}>
+            <span>Register</span> { isLoading && <LoadingSpinner width='10px' height='10px'/> }
+          </LoginButton>
         </Form>
         <StyledLink to="/login">Ya tienes una cuenta? Logeate</StyledLink>
       </FormWrapper>

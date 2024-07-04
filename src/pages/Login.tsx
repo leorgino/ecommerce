@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import LoadingSpinner from '../components/Loading/LoadingSpinner';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -31,18 +32,6 @@ const Input = styled.input`
   border-radius: 4px;
 `;
 
-const Button = styled.button`
-  padding: 10px;
-  background-color: lightblue;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
-
 const StyledLink = styled(Link)`
   display: block;
   margin-top: 10px;
@@ -53,11 +42,20 @@ const StyledLink = styled(Link)`
   }
 `;
 
+const LoginButton = styled.button`
+  background: lightblue;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+`;
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { login } = useAuth();
+  const { login, isLoadingLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,7 +75,9 @@ const Login: React.FC = () => {
         <Form onSubmit={handleSubmit}>
           <Input type="email" name="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
           <Input type="password" name="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
-          <Button type="submit">Login</Button>
+          <LoginButton type="submit" disabled={isLoadingLogin}>
+            <span>Login</span> { isLoadingLogin && <LoadingSpinner width='10px' height='10px'/> }
+          </LoginButton>
         </Form>
         <StyledLink to="/register">No tienes cuenta? Registrate</StyledLink>
       </FormWrapper>

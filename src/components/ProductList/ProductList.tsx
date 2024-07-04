@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Product } from '../../types';
 import ProductItem from './ProductItem/ProductItem';
 import Searcher from './Searcher/Searcher';
 import Filter from './Filter/Filter';
 import styled from 'styled-components';
+import Loading from '../Loading/LoadingComponent';
+import { Product } from '../../types';
 
 const Container = styled.div`
   display: flex;
   flex-direction: row;
+  width: 100%;
 `;
 
 const FlexColumn = styled.div`
@@ -16,13 +18,14 @@ const FlexColumn = styled.div`
   flex-direction: column;
   flex-wrap: wrap;
   justify-content: space-between;
+  width: 100%;
 `;
 
 const FlexRow = styled.div`
   display: flex;
-  flex-direction: row;
+  justify-content: center;
   flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: row;
 `;
 
 const baseUrl = 'https://e-commerce-api-v2.academlo.tech/api/v1/products';
@@ -35,25 +38,24 @@ const ProductList: React.FC<{}> = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        let url = baseUrl;
+        try {
+          setProducts([]);
+          let url = baseUrl;
 
-        if (searchByCategory) {
-          url += `?categoryId=${searchByCategory}`;
+          if (searchByCategory) {
+            url += `?categoryId=${searchByCategory}`;
+          }
+
+          if (searchByName) {
+            url += searchByCategory ? `&title=${searchByName}` : `?title=${searchByName}`;
+          }
+
+          const productResponse = await axios.get(url);
+
+          setProducts(productResponse?.data || []);
+        } catch (error: any) {
+          console.error('Error fetching data:', error.response ? error.response.data : error.message);
         }
-
-        if (searchByName) {
-          url += searchByCategory ? `&title=${searchByName}` : `?title=${searchByName}`;
-        }
-        const [productResponse] = await Promise.all([
-          axios.get(url),
-        ]);
-
-        setProducts(productResponse.data);
-        // setCategories(categoryResponse.data);
-      } catch (error: any) {
-        console.error('Error fetching data:', error.response ? error.response.data : error.message);
-      }
     };
 
     fetchData();
@@ -74,6 +76,7 @@ const ProductList: React.FC<{}> = () => {
       />
       <FlexColumn>
         <Searcher setSearchByName={setSearchByName}/>
+        { !filteredProducts.length  && <Loading />}
         <FlexRow>
           {filteredProducts.map((product: Product, index: number) => (
             <ProductItem key={index} product={product} />

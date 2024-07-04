@@ -7,12 +7,12 @@ interface SearcherProps {
 }
 
 const Section = styled.div`
-  margin: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f0f0f0;
-  padding: 10px;
+  padding: 5px;
+  margin-bottom: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;

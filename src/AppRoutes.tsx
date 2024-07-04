@@ -4,9 +4,10 @@ import Login from './pages/Login'
 import Logout from './pages/Logout'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
+import Purchases from './pages/Purchases';
 import PrivateRoute from './pages/PrivateRoute'
 import NavBar from './components/NavBar/NavBar';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 import {
   Route,
@@ -29,6 +30,7 @@ export const AppRoutes: React.FC<{}> = () => {
 
               <Route element={<PrivateRoute redirect='/login' />}>
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/purchases" element={<Purchases />} />
               </Route>
 
               <Route path="/register" element={<Register />} />

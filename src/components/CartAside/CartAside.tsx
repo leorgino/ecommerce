@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../../contexts/CartContext';
-import styled from 'styled-components'
 import axios from 'axios';
+import styled from 'styled-components'
+import { useAuth } from '../../contexts/AuthContext';
+import LoadingSpinner from '../../components/Loading/LoadingSpinner';
 
 const Aside = styled.aside`
   position: fixed;
@@ -35,17 +37,23 @@ const ListItem = styled.li`
 
 const PayButtonWrapper = styled.div`
   width: 100%;
-  text-align: center;
+  display: flex;
+  justify-content: center;
 `;
 
 const PayButton = styled.button`
   background: lightblue;
   padding: 10px;
   border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const CartAside: React.FC = () => {
-  const { cart, removeFromCart, clearCart, cartIsOpen, toggleAsideCart} = useCart();
+  const { token, isAuthenticated } = useAuth();
+  const { cart, removeFromCart, cartIsOpen, toggleAsideCart, getCart } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
 
   if(!cartIsOpen) return null
 
@@ -53,25 +61,22 @@ const CartAside: React.FC = () => {
     toggleAsideCart()
   }
 
-  const totalPrice = cart.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
+  const totalPrice = cart.reduce((total, item) => total + parseFloat(item.product.price) * item.quantity, 0);
 
   const proceedToPay = async () => {
-    const order = {
-      items: cart.map(item => ({
-        productId: item.id,
-        quantity: item.quantity
-      })),
-      total: totalPrice
-    };
-
+    setIsLoading(true);
     try {
-      const response = axios.post('http://localhost:3000/orders', order);
-      console.log('response', response);
-      clearCart();
-      alert('Order placed successfully!');
+      await axios.post('https://e-commerce-api-v2.academlo.tech/api/v1/purchases', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      getCart();
+      closeAside();
     } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order.');
+      console.error('Error proceeding to pay:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,17 +89,22 @@ const CartAside: React.FC = () => {
       <Title>Shopping Cart</Title>
       <ul className="list-group">
         {cart.map(item => (
-          <ListItem key={item.id}>
-            <span>{item.title} x {item.quantity}</span>
-            <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.id)}>&times;</button>
+          <ListItem key={item.productId}>
+            <span>{item.product.title} - {item.quantity} x {item.product.price} = ({item.quantity * parseFloat(item.product.price)})  </span>
+            <span>
+              <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(item.productId)}>&times;</button>
+            </span>
           </ListItem>
         ))}
       </ul>
-      <button className="btn btn-secondary mt-3" onClick={clearCart}>Clear Cart</button>
 
-      <PayButtonWrapper>
-        <PayButton onClick={proceedToPay}>Pagar ${totalPrice.toFixed(2)}</PayButton>
-      </PayButtonWrapper>
+      {isAuthenticated &&
+        <PayButtonWrapper>
+          <PayButton onClick={proceedToPay} disabled={isLoading}>
+            <span>Pagar ${totalPrice.toFixed(2)}</span> { isLoading && <LoadingSpinner width='10px' height='10px'/> }
+          </PayButton>
+        </PayButtonWrapper>
+      }
     </Aside>
   );
 };
